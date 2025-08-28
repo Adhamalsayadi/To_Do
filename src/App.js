@@ -14,8 +14,8 @@ const theme = createTheme({
 const todo = [
   {
     id: uuidv4(),
-    body: " صباح مساء وفي كل وقت وحين",
-    name: "عراب الدكتور/ حميد علي محسن الصيادي ",
+    body: " وصف المهمة الاولى ",
+    name: "المهمة الاولى",
     done: false,
   },
 ];
