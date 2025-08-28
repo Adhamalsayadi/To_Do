@@ -45,7 +45,7 @@ export default function ToDoMain({ todo, Checked }) {
         }}
       >
         <DialogTitle id="alert-dialog-title" className="text-right">
-          {"يمكنك التعديل على اسم ووصف المهمة"}
+          {"هل انت متاكد من حذف هذه المهمة؟"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText
@@ -91,7 +91,7 @@ export default function ToDoMain({ todo, Checked }) {
         }}
       >
         <DialogTitle id="alert-dialog-title" className="text-right">
-          {"هل انت متاكد من حذف هذه المهمة؟"}
+          {"يمكنك التعديل على اسم ووصف المهمة"}
         </DialogTitle>
         <DialogContent>
           <TextField
@@ -161,7 +161,10 @@ export default function ToDoMain({ todo, Checked }) {
                 {todo.body}
               </Typography>
             </Grid>
-            <Grid className="!flex !justify-around !items-center" size={4}>
+            <Grid
+              className="!flex !flex-wrap !justify-around !items-center"
+              size={4}
+            >
               {/* done todo */}
               <IconButton
                 className="hover:!bg-green-400 transition-all w-10 h-10 !duration-300 !ease-out "
