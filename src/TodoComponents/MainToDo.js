@@ -45,7 +45,7 @@ export default function ToDoMain({ todo, Checked }) {
         }}
       >
         <DialogTitle id="alert-dialog-title" className="text-right">
-          {"هل انت متاكد من حذف هذه المهمة؟"}
+          {"يمكنك التعديل على اسم ووصف المهمة"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText
