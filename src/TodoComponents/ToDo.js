@@ -1,0 +1,105 @@
+import * as React from "react";
+import Grid from "@mui/material/Grid";
+import Container from "@mui/material/Container";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToDoMain from "./MainToDo";
+import TextField from "@mui/material/TextField";
+import { TodoContext } from "../Contexts/ToDoContext";
+import { useState } from "react";
+import { useContext } from "react";
+import { v4 as uuidv4 } from "uuid";
+
+export default function ToDo() {
+  const [inputname, setname] = useState({ name: "", body: "" });
+  const { initialvalue, settodo } = useContext(TodoContext);
+  const ToDos = initialvalue.map(function (ele) {
+    return <ToDoMain key={ele.id} todo={ele} />;
+  });
+  const lockAdd = inputname.name === "" || inputname.body === "";
+  return (
+    <Container maxWidth="sm">
+      <Card sx={{ minWidth: 275 }}>
+        <CardContent>
+          <Typography variant="h1">المهام</Typography>
+          <hr className="border-1 border-white-100 my-1" />
+          <ToggleButtonGroup
+            color="primary"
+            // value={alignment}
+            exclusive
+            // onChange={handleChange}
+            aria-label="Platform"
+          >
+            <ToggleButton value="web">الكل</ToggleButton>
+            <ToggleButton value="android">المنجز</ToggleButton>
+            <ToggleButton value="ios">غير منجز</ToggleButton>
+          </ToggleButtonGroup>
+          {ToDos}
+
+          <Grid container spacing={2} className=" my-2">
+            <Grid
+              size={8}
+              className="!flex bg-white !justify-around  !items-center"
+            >
+              <TextField
+                id="outlined-basic"
+                label="اسم المهمة"
+                value={inputname.name}
+                variant="outlined"
+                className="w-full h-full"
+                onChange={(e) => {
+                  setname({ ...inputname, name: e.target.value });
+                }}
+              />
+              <TextField
+                id="outlined-basic"
+                label="وصف المهمة"
+                value={inputname.body}
+                variant="outlined"
+                className="w-full h-full !mx-1"
+                onChange={(e) => {
+                  setname({ ...inputname, body: e.target.value });
+                }}
+              />
+            </Grid>
+            <Grid size={4} className="!flex  !justify-around !items-center">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  const newtodo = {
+                    id: uuidv4(),
+                    name: inputname.name,
+                    body: inputname.body,
+                    done: false,
+                  };
+                  const upstore = [...initialvalue, newtodo];
+                  settodo(upstore);
+                  localStorage.setItem("todo", JSON.stringify(upstore));
+                  setname({ name: "", body: "" });
+                }}
+                disabled={lockAdd}
+                className={`!w-full !h-full !text-xl !text-bold ${
+                  lockAdd
+                    ? "!bg-red-600 !text-white"
+                    : "!bg-green-600 !text-black "
+                }`}
+              >
+                اضافة
+              </Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+        <CardActions>
+          <Button size="small" className="left">
+            Learn More
+          </Button>
+        </CardActions>
+      </Card>
+    </Container>
+  );
+}

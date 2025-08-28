@@ -1,24 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import ToDo from "./TodoComponents/ToDo.js";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { TodoContext } from "./Contexts/ToDoContext.js";
+import { useState } from "react";
 
+import { v4 as uuidv4 } from "uuid";
+
+const theme = createTheme({
+  typography: {
+    fontFamily: "playsans",
+  },
+});
+const todo = [
+  {
+    id: uuidv4(),
+    body: " صباح مساء وفي كل وقت وحين",
+    name: "عراب الدكتور/ حميد علي محسن الصيادي ",
+    done: false,
+  },
+];
 function App() {
+  const [initialvalue, settodo] = useState(todo);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+      <div
+        className="rtl App flex   justify-center items-center min-h-screen bg-purple-600 "
+        style={{ direction: "rtl" }}
+      >
+        <TodoContext.Provider value={{ initialvalue, settodo }}>
+          <ToDo />
+        </TodoContext.Provider>
+      </div>
+    </ThemeProvider>
   );
 }
 
