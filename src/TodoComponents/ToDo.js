@@ -36,7 +36,7 @@ export default function ToDo() {
   });
 
   useEffect(() => {
-    const stortodo = JSON.parse(localStorage.getItem("todo"));
+    const stortodo = JSON.parse(localStorage.getItem("todo")) ?? [];
     settodo(stortodo);
   }, [settodo]);
   const lockAdd = inputname.name === "" || inputname.body === "";

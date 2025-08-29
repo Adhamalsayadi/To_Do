@@ -14,8 +14,8 @@ const theme = createTheme({
 const todo = [
   {
     id: uuidv4(),
-    body: " وصف المهمة الاولى ",
-    name: "المهمة الاولى",
+    body: "",
+    name: "",
     done: false,
   },
 ];
