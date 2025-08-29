@@ -26,11 +26,11 @@ export default function ToDoMain({ todo, Checked }) {
   const { initialvalue, settodo } = useContext(TodoContext);
 
   function Done() {
-    settodo(
-      initialvalue.map((t) => {
-        return t.id === todo.id ? { ...t, done: !t.done } : t;
-      })
-    );
+    const updatedchecked = initialvalue.map((t) => {
+      return t.id === todo.id ? { ...t, done: !t.done } : t;
+    });
+    settodo(updatedchecked);
+    localStorage.setItem("todo", JSON.stringify(updatedchecked));
   }
   return (
     <>
@@ -68,11 +68,12 @@ export default function ToDoMain({ todo, Checked }) {
             autoFocus
             className="!text-red-600 !font-bold"
             onClick={() => {
-              settodo(
-                initialvalue.filter((t) => {
-                  return t.id !== todo.id;
-                })
-              );
+              const deletedone = initialvalue.filter((t) => {
+                return t.id !== todo.id;
+              });
+              settodo(deletedone);
+              localStorage.setItem("todo", JSON.stringify(deletedone));
+
               setdelete(false);
             }}
           >
@@ -138,13 +139,14 @@ export default function ToDoMain({ todo, Checked }) {
             autoFocus
             className="!text-red-600 !font-bold"
             onClick={() => {
-              settodo(
-                initialvalue.map((t) => {
-                  return t.id === todo.id
-                    ? { ...t, name: updatTodo.name, body: updatTodo.body }
-                    : t;
-                })
-              );
+              const editedone = initialvalue.map((t) => {
+                return t.id === todo.id
+                  ? { ...t, name: updatTodo.name, body: updatTodo.body }
+                  : t;
+              });
+              settodo(editedone);
+              localStorage.setItem("todo", JSON.stringify(editedone));
+
               setedit(false);
             }}
           >

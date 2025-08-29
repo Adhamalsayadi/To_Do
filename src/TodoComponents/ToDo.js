@@ -11,33 +11,54 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToDoMain from "./MainToDo";
 import TextField from "@mui/material/TextField";
 import { TodoContext } from "../Contexts/ToDoContext";
-import { useState } from "react";
-import { useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 export default function ToDo() {
   const [inputname, setname] = useState({ name: "", body: "" });
   const { initialvalue, settodo } = useContext(TodoContext);
-  const ToDos = initialvalue.map(function (ele) {
+  const [TodoCatagores, setTodoCatagores] = useState("all");
+  const ToDoDone = initialvalue.filter((t) => {
+    return t.done === true;
+  });
+  const Notdone = initialvalue.filter((t) => {
+    return t.done === false;
+  });
+  let showntodo = initialvalue;
+  if (TodoCatagores === "Not") {
+    showntodo = Notdone;
+  } else if (TodoCatagores === "Done") {
+    showntodo = ToDoDone;
+  }
+
+  const ToDos = showntodo.map(function (ele) {
     return <ToDoMain key={ele.id} todo={ele} />;
   });
+
+  useEffect(() => {
+    const stortodo = JSON.parse(localStorage.getItem("todo"));
+    settodo(stortodo);
+  }, [settodo]);
   const lockAdd = inputname.name === "" || inputname.body === "";
   return (
     <Container maxWidth="sm">
-      <Card sx={{ minWidth: 275 }}>
+      <Card sx={{ minWidth: 275 }} className="!max-h-[90vh] !overflow-scroll">
         <CardContent>
           <Typography variant="h1">المهام</Typography>
           <hr className="border-1 border-white-100 my-1" />
           <ToggleButtonGroup
             color="primary"
-            // value={alignment}
+            value={TodoCatagores}
             exclusive
-            // onChange={handleChange}
+            onChange={(e) => {
+              setTodoCatagores(e.target.value);
+              console.log(e.target.value);
+            }}
             aria-label="Platform"
           >
-            <ToggleButton value="web">الكل</ToggleButton>
-            <ToggleButton value="android">المنجز</ToggleButton>
-            <ToggleButton value="ios">غير منجز</ToggleButton>
+            <ToggleButton value="all">الكل</ToggleButton>
+            <ToggleButton value="Done">المنجز</ToggleButton>
+            <ToggleButton value="Not">غير منجز</ToggleButton>
           </ToggleButtonGroup>
           {ToDos}
 
