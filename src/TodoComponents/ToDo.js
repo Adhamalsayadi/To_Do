@@ -11,19 +11,36 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToDoMain from "./MainToDo";
 import TextField from "@mui/material/TextField";
 import { TodoContext } from "../Contexts/ToDoContext";
-import { useState, useContext, useEffect } from "react";
+import { ToastC } from "../Contexts/ToastContext";
+import { useState, useContext, useEffect, useMemo } from "react";
 import { v4 as uuidv4 } from "uuid";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
 
 export default function ToDo() {
-  const [inputname, setname] = useState({ name: "", body: "" });
   const { initialvalue, settodo } = useContext(TodoContext);
+  const { shownotification } = useContext(ToastC);
+
+  const [inputname, setname] = useState({ name: "", body: "" });
+  const [deleteTodo, setdelete] = useState(false);
+  const [dialogv, setdialogv] = useState(null);
+  const [dialoge, setdialoge] = useState(null);
+  const [editTodo, setedit] = useState(false);
+
   const [TodoCatagores, setTodoCatagores] = useState("all");
-  const ToDoDone = initialvalue.filter((t) => {
-    return t.done === true;
-  });
-  const Notdone = initialvalue.filter((t) => {
-    return t.done === false;
-  });
+  const ToDoDone = useMemo(() => {
+    return initialvalue.filter((t) => {
+      return t.done === true;
+    });
+  }, [initialvalue]);
+  const Notdone = useMemo(() => {
+    return initialvalue.filter((t) => {
+      return t.done === false;
+    });
+  }, [initialvalue]);
   let showntodo = initialvalue;
   if (TodoCatagores === "Not") {
     showntodo = Notdone;
@@ -31,96 +48,236 @@ export default function ToDo() {
     showntodo = ToDoDone;
   }
 
-  const ToDos = showntodo.map(function (ele) {
-    return <ToDoMain key={ele.id} todo={ele} />;
-  });
-
   useEffect(() => {
     const stortodo = JSON.parse(localStorage.getItem("todo")) ?? [];
     settodo(stortodo);
   }, [settodo]);
   const lockAdd = inputname.name === "" || inputname.body === "";
-  return (
-    <Container maxWidth="sm">
-      <Card sx={{ minWidth: 275 }} className="!max-h-[90vh] !overflow-scroll">
-        <CardContent>
-          <Typography variant="h1">المهام</Typography>
-          <hr className="border-1 border-white-100 my-1" />
-          <ToggleButtonGroup
-            color="primary"
-            value={TodoCatagores}
-            exclusive
-            onChange={(e) => {
-              setTodoCatagores(e.target.value);
-              console.log(e.target.value);
-            }}
-            aria-label="Platform"
-          >
-            <ToggleButton value="all">الكل</ToggleButton>
-            <ToggleButton value="Done">المنجز</ToggleButton>
-            <ToggleButton value="Not">غير منجز</ToggleButton>
-          </ToggleButtonGroup>
-          {ToDos}
 
-          <Grid container spacing={2} className=" my-2">
-            <Grid
-              size={8}
-              className="!flex bg-white !justify-around  !items-center"
-            >
-              <TextField
-                id="outlined-basic"
-                label="اسم المهمة"
-                value={inputname.name}
-                variant="outlined"
-                className="w-full h-full"
-                onChange={(e) => {
-                  setname({ ...inputname, name: e.target.value });
-                }}
-              />
-              <TextField
-                id="outlined-basic"
-                label="وصف المهمة"
-                value={inputname.body}
-                variant="outlined"
-                className="w-full h-full !mx-1"
-                onChange={(e) => {
-                  setname({ ...inputname, body: e.target.value });
-                }}
-              />
-            </Grid>
-            <Grid size={4} className="!flex  !justify-around !items-center">
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  const newtodo = {
-                    id: uuidv4(),
-                    name: inputname.name,
-                    body: inputname.body,
-                    done: false,
-                  };
-                  const upstore = [...initialvalue, newtodo];
-                  settodo(upstore);
-                  localStorage.setItem("todo", JSON.stringify(upstore));
-                  setname({ name: "", body: "" });
-                }}
-                disabled={lockAdd}
-                className={`!w-full !h-full !text-xl !text-bold ${
-                  lockAdd
-                    ? "!bg-red-600 !text-white"
-                    : "!bg-green-600 !text-black "
-                }`}
-              >
-                اضافة
-              </Button>
-            </Grid>
-          </Grid>
-        </CardContent>
-        <CardActions>
-          <Button size="small" className="left">
-            Learn More
+  const ToDos = showntodo.map(function (ele) {
+    return (
+      <ToDoMain
+        key={ele.id}
+        todo={ele}
+        shdelete={showdeletemodal}
+        shedit={showeditmodal}
+      />
+    );
+  });
+  function showdeletemodal(todo) {
+    setdialogv(todo);
+    setdelete(true);
+  }
+
+  function showeditmodal(todo) {
+    setdialoge(todo);
+    setedit(true);
+  }
+  return (
+    <>
+      {/* edit modal  */}
+      <Dialog
+        open={editTodo}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        dir="rtl"
+        onClose={() => {
+          setedit(false);
+        }}
+      >
+        <DialogTitle id="alert-dialog-title" className="text-right">
+          {"يمكنك التعديل على اسم ووصف المهمة"}
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            value={dialoge?.name || ""}
+            onChange={(e) => {
+              setdialoge({ ...dialoge, name: e.target.value });
+            }}
+            id="name"
+            name="email"
+            label="اسم المهمة"
+            type="email"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            autoFocus
+            required
+            value={dialoge?.body || ""}
+            onChange={(e) => {
+              setdialoge({ ...dialoge, body: e.target.value });
+            }}
+            margin="dense"
+            id="name"
+            name="email"
+            label="تفاصيل المهمة"
+            type="email"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            className="!text-green-600 !font-bold"
+            onClick={() => {
+              setedit(false);
+            }}
+          >
+            تراجع
           </Button>
-        </CardActions>
-      </Card>
-    </Container>
+          <Button
+            autoFocus
+            className="!text-red-600 !font-bold"
+            onClick={() => {
+              const editedone = initialvalue.map((t) => {
+                return t.id === dialoge.id
+                  ? { ...t, name: dialoge.name, body: dialoge.body }
+                  : t;
+              });
+              settodo(editedone);
+              localStorage.setItem("todo", JSON.stringify(editedone));
+
+              setedit(false);
+              shownotification("ثم التعديل بنجاح");
+            }}
+          >
+            تاكيد
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {/* delete modal  */}
+      <Dialog
+        open={deleteTodo}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        dir="rtl"
+        onClose={() => {
+          setdelete(false);
+        }}
+      >
+        <DialogTitle id="alert-dialog-title" className="text-right">
+          {"هل انت متاكد من حذف هذه المهمة؟"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText
+            id="alert-dialog-description"
+            className="!text-red-600 !font-bold"
+          >
+            ملاحظة: في حالة الحذف لا يمكنك استعادة اي من المحذوفات
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            className="!text-green-600 !font-bold"
+            onClick={() => {
+              setdelete(false);
+            }}
+          >
+            الغاء
+          </Button>
+          <Button
+            autoFocus
+            className="!text-red-600 !font-bold"
+            onClick={() => {
+              const deletedone = initialvalue.filter((t) => {
+                return t.id !== dialogv.id;
+              });
+              settodo(deletedone);
+              localStorage.setItem("todo", JSON.stringify(deletedone));
+              setdelete(false);
+              shownotification("تم حذف المهمة");
+            }}
+          >
+            حذف
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Container maxWidth="sm">
+        <Card sx={{ minWidth: 275 }} className="!max-h-[90vh] !overflow-scroll">
+          <CardContent>
+            <Typography variant="h1">المهام</Typography>
+            <hr className="border-1 border-white-100 my-1" />
+            <ToggleButtonGroup
+              color="primary"
+              value={TodoCatagores}
+              exclusive
+              onChange={(e) => {
+                setTodoCatagores(e.target.value);
+                console.log(e.target.value);
+              }}
+              aria-label="Platform"
+            >
+              <ToggleButton value="all">الكل</ToggleButton>
+              <ToggleButton value="Done">المنجز</ToggleButton>
+              <ToggleButton value="Not">غير منجز</ToggleButton>
+            </ToggleButtonGroup>
+            {ToDos}
+
+            <Grid container spacing={2} className=" my-2">
+              <Grid
+                size={8}
+                className="!flex bg-white !justify-around  !items-center"
+              >
+                <TextField
+                  id="outlined-basic"
+                  label="اسم المهمة"
+                  value={inputname.name}
+                  variant="outlined"
+                  className="w-full h-full"
+                  onChange={(e) => {
+                    setname({ ...inputname, name: e.target.value });
+                  }}
+                />
+                <TextField
+                  id="outlined-basic"
+                  label="وصف المهمة"
+                  value={inputname.body}
+                  variant="outlined"
+                  className="w-full h-full !mx-1"
+                  onChange={(e) => {
+                    setname({ ...inputname, body: e.target.value });
+                  }}
+                />
+              </Grid>
+              <Grid size={4} className="!flex  !justify-around !items-center">
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    const newtodo = {
+                      id: uuidv4(),
+                      name: inputname.name,
+                      body: inputname.body,
+                      done: false,
+                    };
+                    const upstore = [...initialvalue, newtodo];
+                    settodo(upstore);
+                    localStorage.setItem("todo", JSON.stringify(upstore));
+                    setname({ name: "", body: "" });
+                    shownotification("تم اضافة المهمة");
+                  }}
+                  disabled={lockAdd}
+                  className={`!w-full !h-full !text-xl !text-bold ${
+                    lockAdd
+                      ? "!bg-red-600 !text-white"
+                      : "!bg-green-600 !text-black "
+                  }`}
+                >
+                  اضافة
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+          <CardActions>
+            <Button size="small" className="left">
+              Learn More
+            </Button>
+          </CardActions>
+        </Card>
+      </Container>
+    </>
   );
 }

@@ -7,153 +7,25 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import IconButton from "@mui/material/IconButton";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import { TodoContext } from "../Contexts/ToDoContext";
+import { ToastC } from "../Contexts/ToastContext";
 import { useContext, useState } from "react";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import TextField from "@mui/material/TextField";
 
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-export default function ToDoMain({ todo, Checked }) {
-  const [deleteTodo, setdelete] = useState(false);
-  const [editTodo, setedit] = useState(false);
-  const [updatTodo, seteupdate] = useState({
-    name: todo.name,
-    body: todo.body,
-  });
+export default function ToDoMain({ todo, shedit, shdelete }) {
   const { initialvalue, settodo } = useContext(TodoContext);
+  const { shownotification } = useContext(ToastC);
 
   function Done() {
     const updatedchecked = initialvalue.map((t) => {
       return t.id === todo.id ? { ...t, done: !t.done } : t;
     });
+
     settodo(updatedchecked);
     localStorage.setItem("todo", JSON.stringify(updatedchecked));
+    shownotification("تمت المهمة! تهانينا");
   }
+
   return (
     <>
-      {/* delete modal  */}
-      <Dialog
-        open={deleteTodo}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        dir="rtl"
-        onClose={() => {
-          setdelete(false);
-        }}
-      >
-        <DialogTitle id="alert-dialog-title" className="text-right">
-          {"هل انت متاكد من حذف هذه المهمة؟"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText
-            id="alert-dialog-description"
-            className="!text-red-600 !font-bold"
-          >
-            ملاحظة: في حالة الحذف لا يمكنك استعادة اي من المحذوفات
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            className="!text-green-600 !font-bold"
-            onClick={() => {
-              setdelete(false);
-            }}
-          >
-            الغاء
-          </Button>
-          <Button
-            autoFocus
-            className="!text-red-600 !font-bold"
-            onClick={() => {
-              const deletedone = initialvalue.filter((t) => {
-                return t.id !== todo.id;
-              });
-              settodo(deletedone);
-              localStorage.setItem("todo", JSON.stringify(deletedone));
-
-              setdelete(false);
-            }}
-          >
-            حذف
-          </Button>
-        </DialogActions>
-      </Dialog>
-      {/* edit modal  */}
-      <Dialog
-        open={editTodo}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        dir="rtl"
-        onClose={() => {
-          setedit(false);
-        }}
-      >
-        <DialogTitle id="alert-dialog-title" className="text-right">
-          {"يمكنك التعديل على اسم ووصف المهمة"}
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            value={updatTodo.name}
-            onChange={(e) => {
-              seteupdate({ ...updatTodo, name: e.target.value });
-            }}
-            id="name"
-            name="email"
-            label="اسم المهمة"
-            type="email"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            autoFocus
-            required
-            value={updatTodo.body}
-            onChange={(e) => {
-              seteupdate({ ...updatTodo, body: e.target.value });
-            }}
-            margin="dense"
-            id="name"
-            name="email"
-            label="تفاصيل المهمة"
-            type="email"
-            fullWidth
-            variant="standard"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            className="!text-green-600 !font-bold"
-            onClick={() => {
-              setedit(false);
-            }}
-          >
-            تراجع
-          </Button>
-          <Button
-            autoFocus
-            className="!text-red-600 !font-bold"
-            onClick={() => {
-              const editedone = initialvalue.map((t) => {
-                return t.id === todo.id
-                  ? { ...t, name: updatTodo.name, body: updatTodo.body }
-                  : t;
-              });
-              settodo(editedone);
-              localStorage.setItem("todo", JSON.stringify(editedone));
-
-              setedit(false);
-            }}
-          >
-            تاكيد
-          </Button>
-        </DialogActions>
-      </Dialog>
       <Card sx={{ minWidth: 275 }} className="my-2">
         <CardContent className="text-right  bg-blue-400 hover:py-8 transition-all duration-300">
           <Grid container spacing={2}>
@@ -184,7 +56,7 @@ export default function ToDoMain({ todo, Checked }) {
               {/* done todo */}
               <IconButton
                 onClick={() => {
-                  setedit(true);
+                  shedit(todo);
                 }}
                 className="hover:!bg-green-200 transition-all w-10 h-10 duration-300 !ease-out !md:ease-in"
                 aria-label="delete"
@@ -197,7 +69,7 @@ export default function ToDoMain({ todo, Checked }) {
                 className="hover:!bg-red-400 transition-all w-10 h-10 duration-300 ease-in  "
                 style={{ backgroundColor: "white", color: "gray" }}
                 onClick={() => {
-                  setdelete(true);
+                  shdelete(todo);
                 }}
               >
                 <DeleteIcon />
