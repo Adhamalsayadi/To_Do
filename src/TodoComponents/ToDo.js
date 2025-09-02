@@ -48,7 +48,7 @@ export default function ToDo() {
 
   useEffect(() => {
     dispatch({ type: "store" });
-  }, []);
+  }, [dispatch]);
   const lockAdd = inputname.name === "" || inputname.body === "";
 
   const ToDos = showntodo.map(function (ele) {
@@ -183,7 +183,11 @@ export default function ToDo() {
             onClick={() => {
               dispatch({
                 type: "delete",
-                payload: { dialogv },
+                payload: {
+                  id: dialogv.id,
+                  name: dialogv.name,
+                  body: dialogv.body,
+                },
               });
               setdelete(false);
               shownotification("تم حذف المهمة");
