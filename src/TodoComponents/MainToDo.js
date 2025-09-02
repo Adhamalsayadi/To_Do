@@ -8,19 +8,16 @@ import IconButton from "@mui/material/IconButton";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import { TodoContext } from "../Contexts/ToDoContext";
 import { ToastC } from "../Contexts/ToastContext";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 
 export default function ToDoMain({ todo, shedit, shdelete }) {
-  const { initialvalue, settodo } = useContext(TodoContext);
+  const { dispatch } = useContext(TodoContext);
+
   const { shownotification } = useContext(ToastC);
 
   function Done() {
-    const updatedchecked = initialvalue.map((t) => {
-      return t.id === todo.id ? { ...t, done: !t.done } : t;
-    });
+    dispatch({ type: "done", payload: todo });
 
-    settodo(updatedchecked);
-    localStorage.setItem("todo", JSON.stringify(updatedchecked));
     shownotification("تمت المهمة! تهانينا");
   }
 
@@ -44,7 +41,9 @@ export default function ToDoMain({ todo, shedit, shdelete }) {
                 className="hover:!bg-green-400 transition-all w-10 h-10 !duration-300 !ease-out "
                 aria-label="delete"
                 style={{
-                  backgroundColor: todo.done ? "blue" : "white",
+                  backgroundColor: todo.done
+                    ? "blue !hover:!bg-blue-200"
+                    : "white",
                   color: todo.done ? "white" : "gray",
                 }}
                 onClick={() => {

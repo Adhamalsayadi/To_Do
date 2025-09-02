@@ -1,4 +1,3 @@
-import * as React from "react";
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
 import Card from "@mui/material/Card";
@@ -13,7 +12,6 @@ import TextField from "@mui/material/TextField";
 import { TodoContext } from "../Contexts/ToDoContext";
 import { ToastC } from "../Contexts/ToastContext";
 import { useState, useContext, useEffect, useMemo } from "react";
-import { v4 as uuidv4 } from "uuid";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -21,7 +19,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 
 export default function ToDo() {
-  const { initialvalue, settodo } = useContext(TodoContext);
+  const { initialvalue, dispatch } = useContext(TodoContext);
   const { shownotification } = useContext(ToastC);
 
   const [inputname, setname] = useState({ name: "", body: "" });
@@ -49,9 +47,8 @@ export default function ToDo() {
   }
 
   useEffect(() => {
-    const stortodo = JSON.parse(localStorage.getItem("todo")) ?? [];
-    settodo(stortodo);
-  }, [settodo]);
+    dispatch({ type: "store" });
+  }, []);
   const lockAdd = inputname.name === "" || inputname.body === "";
 
   const ToDos = showntodo.map(function (ele) {
@@ -133,13 +130,14 @@ export default function ToDo() {
             autoFocus
             className="!text-red-600 !font-bold"
             onClick={() => {
-              const editedone = initialvalue.map((t) => {
-                return t.id === dialoge.id
-                  ? { ...t, name: dialoge.name, body: dialoge.body }
-                  : t;
+              dispatch({
+                type: "edit",
+                payload: {
+                  id: dialoge.id,
+                  name: dialoge.name,
+                  body: dialoge.body,
+                },
               });
-              settodo(editedone);
-              localStorage.setItem("todo", JSON.stringify(editedone));
 
               setedit(false);
               shownotification("ثم التعديل بنجاح");
@@ -183,11 +181,10 @@ export default function ToDo() {
             autoFocus
             className="!text-red-600 !font-bold"
             onClick={() => {
-              const deletedone = initialvalue.filter((t) => {
-                return t.id !== dialogv.id;
+              dispatch({
+                type: "delete",
+                payload: { dialogv },
               });
-              settodo(deletedone);
-              localStorage.setItem("todo", JSON.stringify(deletedone));
               setdelete(false);
               shownotification("تم حذف المهمة");
             }}
@@ -247,15 +244,10 @@ export default function ToDo() {
                 <Button
                   variant="outlined"
                   onClick={() => {
-                    const newtodo = {
-                      id: uuidv4(),
-                      name: inputname.name,
-                      body: inputname.body,
-                      done: false,
-                    };
-                    const upstore = [...initialvalue, newtodo];
-                    settodo(upstore);
-                    localStorage.setItem("todo", JSON.stringify(upstore));
+                    dispatch({
+                      type: "add",
+                      payload: { name: inputname.name, body: inputname.body },
+                    });
                     setname({ name: "", body: "" });
                     shownotification("تم اضافة المهمة");
                   }}
